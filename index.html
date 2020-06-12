@@ -1,0 +1,86 @@
+<script src="./simpletest.js"></script>
+
+
+<script>
+  // Description: 
+  // This function is an implementation of Object.prototype.isPrototypeOf(). 
+  // It checks if an object exists in another object's prototype chain.
+
+  //Syntax: 
+  // isPrototypeOf(objectPrototype, objectTest)
+
+  // Parameters:
+  // objectPrototype - the object whose prototype chain will be searched
+  // objectTest - the object, which we try to find in the chain  of objectPrototype
+
+  // Return value 
+  // A Boolean indicating whether the objectTest lies in the prototype chain
+  // of the objectPrototype.
+
+  let canine = {
+    bark: function () {
+      console.log("bark");
+    },
+  };
+
+  let dog = Object.create(canine);
+
+  dog.fetch = function () {
+    console.log("fetch");
+  };
+
+  let myDog = Object.create(dog);
+
+  let empty = Object.create(null);
+
+  function isPrototypeOf(objectPrototype, objectTest) {
+    if (!objectPrototype) {
+      throw new TypeError('objectPrototype cannot be null or undefined')
+    }
+    if (typeof objectTest !== "object") {
+      return false;
+    } else {
+      objectTest = Object.getPrototypeOf(objectTest);
+      if (objectTest === null) {
+        return false;
+      } else if (objectPrototype === objectTest) {
+        return true;
+      } else if (typeof objectTest === "object") {
+        return isPrototypeOf(objectPrototype, objectTest);
+      }
+    }
+  }
+
+  tests({
+    "if objectPrototype is the prototype of objectTest, it returns true": function () {
+      eq(isPrototypeOf(dog, myDog), true);
+    },
+    "if objectPrototype is not a prototype of objectTest, it returns false": function () {
+      eq(isPrototypeOf(dog, empty), false);
+    },
+    "It can trace inheritance of objectTest till the Object.prototype": function () {
+      eq(isPrototypeOf(Object.prototype, myDog), true);
+    },
+    "It can work with any number of prototype links": function () {
+      eq(isPrototypeOf(canine, myDog), true);
+    },
+    "If the objectPrototype is null it should throw a TypeError": function () {
+      try {
+				isPrototypeOf(null, dog)
+			} catch (e) {
+				var isError = (e instanceof TypeError);
+			}
+
+			eq(isError, true);
+    },
+    "If the objectPrototype is undefined it should throw a TypeError": function () {
+      try {
+				isPrototypeOf(undefined, canine)
+			} catch (e) {
+				var isError = (e instanceof TypeError);
+			}
+
+			eq(isError, true);
+    },
+  });
+</script>
